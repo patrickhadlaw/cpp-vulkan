@@ -3,6 +3,8 @@ description: Vulkan API demo in c++
 
 by: Patrick Stanislaw Hadlaw
 
+So far only creates GLFW context and initializes Vulkan instance and other vulkan structures.
+
 ### how to run: 
 
 Windows:
