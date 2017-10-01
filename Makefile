@@ -3,19 +3,22 @@
 VULKAN_SDK_PATH = C:/VulkanSDK/1.0.61.1/x86_64
 
 CC=g++
-INC=/include /src $(VULKAN_SDK_PATH)/include 
-CFLAGS=-std=c++11 -Wall $(INC)
+INCLUDES=/include /src $(VULKAN_SDK_PATH)/include 
+CFLAGS=-std=c++11 -Wall -I$(INCLUDES)
 LDFLAGS= -L$(VULKAN_SDK_PATH)/lib -lglfw3 -lvulkan
 
-SOURCES=cpp-vulkan.cpp shaderprogram.cpp
+MAIN=cpp-vulkan.cpp
+SOURCES=shaderprogram.cpp init.cpp app.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=cpp-vulkan
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): $(SOURCES)
+$(SOURCES): $(OBJECTS)
+	$(CC) $(CFLAGS) $(MAIN) -l$(LDFLAGS)
 
-	$(CC) -I$(MYINCLUDES) $(SOURCES) -o$(EXECUTABLE) -l$(LDFLAGS)
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
 
 clean:
 	rm -f $(EXECUTABLE)

@@ -1,32 +1,38 @@
 #include "app.h"
 
-void cppvk::App::run()
+cppvk::App::App()
 {
-	initialize();
-	mainloop();
-	clean();
+
 }
 
 void cppvk::App::initialize()
 {
 	cppvk::init::glfw(this);
 
-	cppvk::init::vkinstance(this);
-
-	cppvk::init::vkdebugCallback(this);
+	cppvk::init::createInstance(this);
+	cppvk::init::createDebugCallback(this);
+	cppvk::init::createSurface(this);
+	cppvk::init::pickPhysicalDevice(this);
+	cppvk::init::createDevice(this);
+	cppvk::init::createSwapChain(this);
 }
 
-void cppvk::App::mainloop()
+bool cppvk::App::shouldClose()
 {
-	while (!glfwWindowShouldClose(window)) {
+	return glfwWindowShouldClose(window);
+}
 
-		glfwPollEvents();
-	}
+void cppvk::App::mainLoop()
+{
+	glfwPollEvents();
 }
 
 void cppvk::App::clean()
 {
+	vkDestroySwapchainKHR(device, swapChain, nullptr);
+	vkDestroyDevice(device, nullptr);
 	cppvk::destroyDebugReportCallbackEXT(instance, callback, nullptr);
+	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
 
 	glfwDestroyWindow(window);
