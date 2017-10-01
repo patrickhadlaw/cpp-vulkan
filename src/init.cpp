@@ -194,7 +194,7 @@ void cppvk::init::createDevice(App * app)
 	std::set<int> uniqueQueueFamilies = { index.graphicsFamily, index.presentFamily };
 
 	float queuePriority = 1.0f;
-	for (int i = 0; i < uniqueQueueFamilies.size(); i++) {
+	for (size_t i = 0; i < uniqueQueueFamilies.size(); i++) {
 		VkDeviceQueueCreateInfo queueCreateinfo = {};
 		queueCreateinfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateinfo.queueFamilyIndex = index.graphicsFamily;
@@ -290,6 +290,7 @@ void cppvk::init::createSwapChain(App * app)
 
 void cppvk::init::createImageViews(App * app)
 {
+	app->swapChainImageViews.resize(app->swapChainImages.size());
 
 }
 
@@ -305,7 +306,7 @@ bool cppvk::init::checkDeviceExtensionSupport(VkPhysicalDevice device)
 	std::vector<const char*> required = deviceExtensions;
 
 	bool extensionsFound = false;
-	for (int i = 0; i < properties.size(); i++) {
+	for (size_t i = 0; i < properties.size(); i++) {
 		for (int j = 0; j < required.size(); j++) {
 			if (properties[i].extensionName == required[j]) {
 				required.erase(required.begin() + j);
@@ -397,7 +398,7 @@ void cppvk::init::pickPhysicalDevice(App * app)
 
 	VkPhysicalDevice bestDevice = nullptr;
 	unsigned int currentScore = 0;
-	for (int i = 0; i < physicalDevices.size(); i++){
+	for (size_t i = 0; i < physicalDevices.size(); i++){
 		unsigned int newScore = cppvk::init::scorePhysicalDevice(app, physicalDevices[i]);
 		if (isDeviceSuitable(app, physicalDevices[i])) {
 
@@ -428,7 +429,7 @@ VkSurfaceFormatKHR cppvk::init::chooseSwapChainSurfaceFormat(const std::vector<V
 	if (availible.size() == 1 && availible[0].format == VK_FORMAT_UNDEFINED) {
 		return { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 	}
-	for (int i = 0; i < availible.size(); i++) {
+	for (size_t i = 0; i < availible.size(); i++) {
 		// If surface format provides ideal settings then give format
 		if (availible[i].format == VK_FORMAT_B8G8R8A8_UNORM && availible[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 			return availible[i];
@@ -455,7 +456,7 @@ VkPresentModeKHR cppvk::init::chooseSwapPresentMode(const std::vector<VkPresentM
 		targetPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 	}
 
-	for (int i = 0; i < availible.size(); i++) {
+	for (size_t i = 0; i < availible.size(); i++) {
 		if (availible[i] == targetPresentMode) {
 			return targetPresentMode;
 		}
@@ -495,7 +496,7 @@ cppvk::QueueFamilyIndex::QueueFamilyIndex(App* app, VkPhysicalDevice device, int
 	std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
 
-	for (int i = 0; i < queueFamilyProperties.size(); i++) {
+	for (size_t i = 0; i < queueFamilyProperties.size(); i++) {
 		// If found queue family thats supports graphics
 		if (queueFamilyProperties[i].queueCount > 0 && queueFamilyProperties[i].queueFlags & type) {
 			graphicsFamily = i;
