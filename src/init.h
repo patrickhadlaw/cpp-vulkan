@@ -12,6 +12,7 @@
 #include <cstring>
 #include <set>
 #include <algorithm>
+#include <fstream>
 
 #define CPPVK_VERSION_MAJOR 1
 #define CPPVK_VERSION_MINOR 0
@@ -134,7 +135,7 @@ namespace cppvk {
 
 	std::string getDeviceDetails(VkPhysicalDevice device);
 	
-	
+	std::vector<char> readFile(const std::string& filepath);
 
 	struct init {
 		static void glfw(App* app);
@@ -144,6 +145,10 @@ namespace cppvk {
 		static void createDevice(App* app);
 		static void createSwapChain(App* app);
 		static void createImageViews(App* app);
+		static void createGraphicsPipeline(App* app, std::string vertexShaderPath, std::string fragmentShaderPath);
+		static void createRenderPass(App* app);
+		static VkShaderModule createShaderModule(App* app, const std::vector<char>& binary);
+		static void createFramebuffers(App* app);
 		static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		static bool isDeviceSuitable(App* app, VkPhysicalDevice device);
 		static unsigned int scorePhysicalDevice(App* app, VkPhysicalDevice device);

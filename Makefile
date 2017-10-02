@@ -1,24 +1,24 @@
 # Makefile
 
-VULKAN_SDK_PATH = C:/VulkanSDK/1.0.61.1/x86_64
+VULKAN_SDK_PATH = C:/VulkanSDK/1.0.61.1
 
 CC=g++
-INCLUDES=/include /src $(VULKAN_SDK_PATH)/include 
-CFLAGS=-std=c++11 -Wall -I$(INCLUDES)
-LDFLAGS= -L$(VULKAN_SDK_PATH)/lib -lglfw3 -lvulkan
+INCLUDEDIRS=-I/include -I/src -I$(VULKAN_SDK_PATH)/Include
+LDFLAGS= -L$(VULKAN_SDK_PATH)/lib -L/lib -lglfw3 -lvulkan
+CFLAGS=-std=c++11 -Wall -g $(LDFLAGS) $(INCLUDEDIRS)
 
 MAIN=cpp-vulkan.cpp
-SOURCES=shaderprogram.cpp init.cpp app.cpp
+SOURCES=src/shaderprogram.cpp src/init.cpp src/app.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=cpp-vulkan
 
-all: $(EXECUTABLE)
+all: $(OBJECTS)
 
-$(SOURCES): $(OBJECTS)
-	$(CC) $(CFLAGS) $(MAIN) -l$(LDFLAGS)
+$(SOURCES):
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+$(EXECUTABLE):
+	$(CC) $(CFLAGS) $(MAIN) $(LDFLAGS) -o $(EXECUTABLE)
 
 clean:
 	rm -f $(EXECUTABLE)

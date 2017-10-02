@@ -42,6 +42,14 @@ namespace cppvk {
 
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
+		
+		VkRenderPass renderPass;
+		VkPipelineLayout pipelineLayout;
+		VkPipeline graphicsPipeline;
+
+		std::vector<VkFramebuffer> swapChainFramebuffers;
+
+		VkCommandPool commandPool;
 
 		uint16_t flags = USE_VSYNC_SWAP;
 	};
