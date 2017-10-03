@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shaderprogram.h"
+#include "init.h"
 
 namespace cppvk {
 

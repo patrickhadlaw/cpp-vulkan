@@ -121,7 +121,6 @@
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="cpp-vulkan.cpp" />
     <ClCompile Include="src\init.cpp" />
-    <ClCompile Include="src\shaderprogram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MAKEFILE" />
@@ -129,7 +128,6 @@
   <ItemGroup>
     <ClInclude Include="src\app.h" />
     <ClInclude Include="src\init.h" />
-    <ClInclude Include="src\shaderprogram.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

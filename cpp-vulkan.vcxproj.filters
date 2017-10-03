@@ -18,9 +18,6 @@
     <ClCompile Include="cpp-vulkan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\shaderprogram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -32,9 +29,6 @@
     <None Include="MAKEFILE" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\shaderprogram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\init.h">
       <Filter>Header Files</Filter>
     </ClInclude>
