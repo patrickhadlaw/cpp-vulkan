@@ -19,6 +19,8 @@ int main(){
 		while (!app.shouldClose()) {
 			app.mainLoop();
 		}
+		
+		app.deviceWaitIdle();
 
 		app.clean();
 	}

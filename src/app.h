@@ -25,6 +25,9 @@ namespace cppvk {
 		void mainLoop();
 		bool shouldClose();
 		void clean(); // Garbage collection for all data
+		void deviceWaitIdle();
+
+		void drawFrame();
 
 	private:
 		GLFWwindow* window;
@@ -50,6 +53,12 @@ namespace cppvk {
 		std::vector<VkFramebuffer> swapChainFramebuffers;
 
 		VkCommandPool commandPool;
+		std::vector<VkCommandBuffer> commandBuffers;
+
+		glm::vec4 clearColor = glm::vec4(1.0, 1.0, 1.0, 1.0);
+
+		VkSemaphore imageAvailible;
+		VkSemaphore renderFinished;
 
 		uint16_t flags = USE_VSYNC_SWAP;
 	};

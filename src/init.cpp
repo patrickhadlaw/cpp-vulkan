@@ -1,17 +1,24 @@
 #include "init.h"
 #include "app.h"
 
-void cppvk::error(std::string err, std::string file, std::string func, unsigned int line)
+void cppvk::error(std::string err, std::string file, std::string func, unsigned int line, int code)
 {
 	DEBUG_FUNCTION_MESSAGE
-	std::string e = "\tError[file: " + file + "][func: " + func + "][line: " + std::to_string(line) + "]: " + err;
+	std::string e = "";
+	if (code) {
+		e = "\tError[code: " + std::to_string(code) + "[file: " + file + "][func: " + func + "][line: " + std::to_string(line) + "]: " + err;
+
+	}
+	else {
+		e = "\tError[file: " + file + "][func: " + func + "][line: " + std::to_string(line) + "]: " + err;
+	}
 	throw std::runtime_error(e);
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL cppvk::debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData)
 {
 	DEBUG_FUNCTION_MESSAGE
-	std::cerr << "\tError: (Vulkan validation layer: " << msg << ") object type: " << objType << " object: " << obj << " location: " << location << " code: " << code << std::endl;
+	cppvk::error("(Vulkan validation layer: " + std::string(msg) + ") object type: " + std::to_string(objType) + " object: " + std::to_string(obj) + " location: " + std::to_string(location) + " code: " + std::to_string(code), __FILE__, FUNC, __LINE__);
 
 	return VK_FALSE;
 }
@@ -77,7 +84,7 @@ VkResult cppvk::createDebugReportCallbackEXT(VkInstance instance, const VkDebugR
 		return func(instance, pCreateInfo, pAllocator, pCallback);
 	}
 	else {
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
+		return VK_ERROR_INITIALIZATION_FAILED;
 	}
 }
 
@@ -113,6 +120,11 @@ void cppvk::init::glfw(App * app)
 void cppvk::init::createInstance(App * app)
 {
 	DEBUG_FUNCTION_MESSAGE
+	
+	if (cppvk::enableValidationLayers && !checkValidationLayerSupport()) {
+		cppvk::error("validation layers requested, but not available", __FILE__, FUNC, __LINE__);
+	}
+	
 	VkApplicationInfo appinfo = {};
 	appinfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appinfo.pApplicationName = "cpp-vulkan";
@@ -133,11 +145,7 @@ void cppvk::init::createInstance(App * app)
 	VkResult result = vkCreateInstance(&createinfo, nullptr, &app->instance);
 
 	if (result != VK_SUCCESS) {
-		throw std::runtime_error("Error[" + std::to_string(result) + "]: failed to create VkInstance");
-	}
-
-	if (cppvk::enableValidationLayers && !checkValidationLayerSupport()) {
-		throw std::runtime_error("validation layers requested, but not available!");
+		cppvk::error("failed to create instance", __FILE__, FUNC, __LINE__, result);
 	}
 
 	if (cppvk::enableValidationLayers) {
@@ -156,7 +164,7 @@ void cppvk::init::createInstance(App * app)
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
 	std::cout << "Available vulkan extensions:" << std::endl;
-
+	
 	for (const auto& extension : extensions) {
 		std::cout << "\t" << extension.extensionName << std::endl;
 	}
@@ -210,7 +218,6 @@ void cppvk::init::createDevice(App * app)
 	deviceCreateinfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	deviceCreateinfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateinfos.size());
 	deviceCreateinfo.pQueueCreateInfos = queueCreateinfos.data();
-	deviceCreateinfo.queueCreateInfoCount = 1;
 	deviceCreateinfo.pEnabledFeatures = &enabledFeatures;
 	deviceCreateinfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	deviceCreateinfo.ppEnabledExtensionNames = deviceExtensions.data();
@@ -501,6 +508,17 @@ void cppvk::init::createRenderPass(App * app)
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 
+	VkSubpassDependency dependancy = {};
+	dependancy.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependancy.dstSubpass = 0;
+	dependancy.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependancy.srcAccessMask = 0;
+	dependancy.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependancy.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependancy;
+
 	if (vkCreateRenderPass(app->device, &renderPassInfo, nullptr, &app->renderPass) != VK_SUCCESS) {
 		cppvk::error("failed to create render pass", __FILE__, FUNC, __LINE__);
 	}
@@ -508,6 +526,7 @@ void cppvk::init::createRenderPass(App * app)
 
 VkShaderModule cppvk::init::createShaderModule(App* app, const std::vector<char>& binary)
 {
+	DEBUG_FUNCTION_MESSAGE
 	VkShaderModuleCreateInfo createinfo = {};
 	createinfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createinfo.codeSize = binary.size();
@@ -543,6 +562,80 @@ void cppvk::init::createFramebuffers(App * app)
 		if (vkCreateFramebuffer(app->device, &framebufferInfo, nullptr, &app->swapChainFramebuffers[i]) != VK_SUCCESS) {
 			cppvk::error("failed to create framebuffer", __FILE__, FUNC, __LINE__);
 		}
+	}
+}
+
+void cppvk::init::createCommandPool(App * app)
+{
+	DEBUG_FUNCTION_MESSAGE
+
+	QueueFamilyIndex index = QueueFamilyIndex(app, app->physicalDevice, VK_QUEUE_GRAPHICS_BIT);
+	VkCommandPoolCreateInfo commandPoolInfo = {};
+	commandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolInfo.queueFamilyIndex = index.graphicsFamily;
+	commandPoolInfo.flags = 0;
+
+	if (vkCreateCommandPool(app->device, &commandPoolInfo, nullptr, &app->commandPool) != VK_SUCCESS) {
+		cppvk::error("failed to create command pool", __FILE__, FUNC, __LINE__);
+	}
+}
+
+void cppvk::init::createCommandBuffers(App * app)
+{
+	DEBUG_FUNCTION_MESSAGE
+	app->commandBuffers.resize(app->swapChainFramebuffers.size());
+
+	VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+	commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	commandBufferAllocateInfo.commandPool = app->commandPool;
+	commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	commandBufferAllocateInfo.commandBufferCount = (uint32_t)app->commandBuffers.size();
+
+	if (vkAllocateCommandBuffers(app->device, &commandBufferAllocateInfo, app->commandBuffers.data()) != VK_SUCCESS) {
+		cppvk::error("failed to allocate command buffers", __FILE__, FUNC, __LINE__);
+	}
+
+	for (size_t i = 0; i < app->commandBuffers.size(); i++) {
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+		beginInfo.pInheritanceInfo = nullptr;
+
+		vkBeginCommandBuffer(app->commandBuffers[i], &beginInfo);
+
+		VkRenderPassBeginInfo renderPassBeginInfo = {};
+		renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassBeginInfo.renderPass = app->renderPass;
+		renderPassBeginInfo.framebuffer = app->swapChainFramebuffers[i];
+		renderPassBeginInfo.renderArea.offset = { 0, 0 };
+		renderPassBeginInfo.renderArea.extent = app->swapChainExtent;
+
+		VkClearValue clearColor = { app->clearColor.x, app->clearColor.y, app->clearColor.z, app->clearColor.w };
+		renderPassBeginInfo.clearValueCount = 1;
+		renderPassBeginInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(app->commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(app->commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, app->graphicsPipeline);
+		vkCmdDraw(app->commandBuffers[i], 3, 1, 0, 0);
+		vkCmdEndRenderPass(app->commandBuffers[i]);
+
+		if (vkEndCommandBuffer(app->commandBuffers[i]) != VK_SUCCESS) {
+			cppvk::error("failed to record command buffer", __FILE__, FUNC, __LINE__);
+		}
+	}
+}
+
+void cppvk::init::createSemaphores(App * app)
+{
+	DEBUG_FUNCTION_MESSAGE
+	VkSemaphoreCreateInfo semaphoreInfo = {};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	if (vkCreateSemaphore(app->device, &semaphoreInfo, nullptr, &app->imageAvailible) != VK_SUCCESS) {
+		cppvk::error("failed to create semaphore", __FILE__, FUNC, __LINE__);
+	}
+	if (vkCreateSemaphore(app->device, &semaphoreInfo, nullptr, &app->renderFinished) != VK_SUCCESS) {
+		cppvk::error("failed to create semaphore", __FILE__, FUNC, __LINE__);
 	}
 }
 
@@ -605,7 +698,7 @@ bool cppvk::init::isDeviceSuitable(App* app, VkPhysicalDevice device)
 	bool extensionsSupported = checkDeviceExtensionSupport(device);
 
 	bool swapChainIsSuitable = false;
-	if (extensionsSupported) {
+	if (checkDeviceExtensionSupport) {
 		SwapChainDetails details = SwapChainDetails(app, device);
 		swapChainIsSuitable = details.valid();
 	}
@@ -664,8 +757,9 @@ void cppvk::init::pickPhysicalDevice(App * app)
 	vkEnumeratePhysicalDevices(app->instance, &deviceCount, physicalDevices.data());
 
 	VkPhysicalDevice bestDevice = nullptr;
+	size_t i = 0;
 	unsigned int currentScore = 0;
-	for (size_t i = 0; i < physicalDevices.size(); i++){
+	for (i = 0; i < physicalDevices.size(); i++){
 		unsigned int newScore = cppvk::init::scorePhysicalDevice(app, physicalDevices[i]);
 		if (isDeviceSuitable(app, physicalDevices[i])) {
 
@@ -685,6 +779,7 @@ void cppvk::init::pickPhysicalDevice(App * app)
 		}
 	}
 	else {
+		std::cout << "Best Physical device: index: " << i << std::endl << cppvk::getDeviceDetails(bestDevice) << std::endl;
 		app->physicalDevice = bestDevice;
 	}
 }
@@ -716,11 +811,11 @@ VkPresentModeKHR cppvk::init::chooseSwapPresentMode(const std::vector<VkPresentM
 	else if (flags & cppvk::USE_RELAXED_VSYNC_SWAP) {
 		targetPresentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
 	}
-	else if (flags & cppvk::USE_VSYNC_SWAP) {
-		targetPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-	}
 	else if (flags & cppvk::USE_TRIPLE_BUFFER_SWAP) {
 		targetPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+	}
+	else if (flags & cppvk::USE_VSYNC_SWAP) {
+		targetPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 	}
 
 	for (size_t i = 0; i < availible.size(); i++) {

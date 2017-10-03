@@ -60,9 +60,13 @@ namespace cppvk {
 	const bool enableValidationLayers = false;
 }
 #else
+
 #ifdef HEAVY_DEBUG
 #define DEBUG_FUNCTION_MESSAGE std::cout << "[" << FUNC << "]\n";
+#else
+#define DEBUG_FUNCTION_MESSAGE
 #endif
+
 namespace cppvk {
 	const bool enableValidationLayers = true;
 }
@@ -89,7 +93,7 @@ namespace cppvk {
 		FLAG_16 = 0x00008000,
 	};
 
-	void error(std::string err, std::string file, std::string func, unsigned int line);
+	void error(std::string err, std::string file, std::string func, unsigned int line, int code = 0);
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugReportFlagsEXT flags,
@@ -149,6 +153,9 @@ namespace cppvk {
 		static void createRenderPass(App* app);
 		static VkShaderModule createShaderModule(App* app, const std::vector<char>& binary);
 		static void createFramebuffers(App* app);
+		static void createCommandPool(App* app);
+		static void createCommandBuffers(App* app);
+		static void createSemaphores(App* app);
 		static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		static bool isDeviceSuitable(App* app, VkPhysicalDevice device);
 		static unsigned int scorePhysicalDevice(App* app, VkPhysicalDevice device);
