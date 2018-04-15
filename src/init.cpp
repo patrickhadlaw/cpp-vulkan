@@ -7,7 +7,6 @@ void cppvk::error(std::string err, std::string file, std::string func, unsigned 
 	std::string e = "";
 	if (code) {
 		e = "\tError[code: " + std::to_string(code) + "[file: " + file + "][func: " + func + "][line: " + std::to_string(line) + "]: " + err;
-
 	}
 	else {
 		e = "\tError[file: " + file + "][func: " + func + "][line: " + std::to_string(line) + "]: " + err;
