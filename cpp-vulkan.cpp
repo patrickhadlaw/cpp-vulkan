@@ -1,15 +1,12 @@
 /*
-// c plus plus vulkan sample
-// file: cpp-vulkan.cpp
-//     description: main file
-// github: https://github.com/patrickhadlaw/py-mod-sort
-// by: Patrick Stanislaw Hadlaw
+	cpp-vulkan runs the vulkan app
 */
 
-// app.h: defines cppvk::App class containing intialization, mainloop, cleanup functions as well as containing all vulkan/glfw data
 #include "app.h"
 
 int main(){
+
+	std::cout << "cpp-vulkan VERSION: " << CPPVK_VERSION_MAJOR << '.' << CPPVK_VERSION_MINOR << '.' << CPPVK_VERSION_REVISION << std::endl;
 
 	cppvk::App app;
 
@@ -27,8 +24,7 @@ int main(){
 	catch (const std::runtime_error& e) {
 		std::cerr << e.what() << std::endl;
 		std::cin.get();
-		return EXIT_FAILURE;
+		return -1;
 	}
-
-	return EXIT_SUCCESS;
+	return 0;
 }

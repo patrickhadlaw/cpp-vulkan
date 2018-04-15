@@ -1,6 +1,7 @@
 #pragma once
 
 #include "init.h"
+#inclide "configuration.h"
 
 namespace cppvk {
 
@@ -26,6 +27,8 @@ namespace cppvk {
 		bool shouldClose();
 		void clean(); // Garbage collection for all data
 		void deviceWaitIdle();
+
+		void recreateSwapChain();
 
 		void drawFrame();
 
