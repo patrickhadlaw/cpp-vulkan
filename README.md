@@ -5,7 +5,7 @@
 * CMake 3.0.0+
 * Vulkan SDK
 
-## Copyright
+## Liscensing
 
 ### This project is licensed under the provided license - see the [LICENSE.md](LICENSE.md) file for details
 
