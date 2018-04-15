@@ -1,0 +1,4 @@
+// the configured options and settings for cpp-vulkan
+#define CPPVK_VERSION_MAJOR @CPPVK_VERSION_MAJOR@
+#define CPPVK_VERSION_MINOR @CPPVK_VERSION_MINOR@
+#define CPPVK_VERSION_REVISION @CPPVK_VERSION_REVISION@

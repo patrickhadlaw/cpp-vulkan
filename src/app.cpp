@@ -66,6 +66,18 @@ void cppvk::App::deviceWaitIdle()
 	vkDeviceWaitIdle(device);
 }
 
+void cppvk::App::recreateSwapChain()
+{
+	vkDeviceWaitIdle(device);
+
+	cppvk::init::createSwapChain(this);
+	cppvk::init::createImageViews(this);
+	cppvk::init::createRenderPass(this);
+	cppvk::init::createGraphicsPipeline(this, "shader/hardcodedtriangle.vert.spv", "shader/hardcodedtriangle.frag.spv");
+	cppvk::init::createFramebuffers(this);
+	cppvk::init::createCommandBuffers(this);
+}
+
 void cppvk::App::drawFrame()
 {
 	uint32_t imageIndex;
