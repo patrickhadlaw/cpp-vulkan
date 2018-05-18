@@ -7,7 +7,7 @@
 
 ## Liscensing
 
-### This project is licensed under the provided license - see the [LICENSE](https://github.com/patrickhadlaw/cpp-vulkan/blob/master/LISCENSE) file for details
+### This project is licensed under the provided license - see the [LICENSE](LICENSE) file for details
 
 ## Authors
 
