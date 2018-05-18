@@ -18,7 +18,7 @@ file(GLOB_RECURSE shader shader/*)
 file(GLOB_RECURSE lib lib/*)
 
 add_executable(cpp-vulkan cpp-vulkan.cpp ${sources})
-target_compile_options(cpp-vulkan PUBLIC -std=c++1y -Wall)
+target_compile_options(cpp-vulkan PUBLIC -std=c++11)
 
 file(COPY ${resources} DESTINATION resources)
 file(COPY ${shader} DESTINATION shader)
@@ -26,7 +26,7 @@ file(COPY ${shader} DESTINATION shader)
 add_subdirectory(${GLFW_LOCATION})
 
 find_package(Vulkan REQUIRED)
-target_include_directories(cpp-vulkan PUBLIC src include ${GLFW_LOCATION}/include lib/glm ${VULKAN_INCLUDE_DIR})
+target_include_directories(cpp-vulkan PUBLIC src ${PROJECT_BINARY_DIR} ${GLFW_LOCATION}/include lib/glm ${VULKAN_INCLUDE_DIR})
 
 #find_library(ASSIMP_LIBRARY assimp HINTS ${PROJECT_BINARY_DIR}/lib)
 

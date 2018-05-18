@@ -7,7 +7,7 @@
 
 ## Liscensing
 
-### This project is licensed under the provided license - see the [LICENSE.md](LICENSE.md) file for details
+### This project is licensed under the provided license - see the [LICENSE](https://github.com/patrickhadlaw/cpp-vulkan/blob/master/LISCENSE) file for details
 
 ## Authors
 
@@ -15,21 +15,21 @@
 
 ## Build instructions
 
-* Download [GLFW](http://www.glfw.org/download.html) from source and extract to /lib as glfw
-* Download [GLM](https://glm.g-truc.net/0.9.8/index.html) from source and extract to /lib as glm
-
 ```
 $ git clone https://github.com/patrickhadlaw/cpp-vulkan
-$ cd cpp-vulkan/bin
+$ cd cpp-vulkan
+$ git clone https://github.com/glfw/glfw lib/glfw
+$ git clone https://github.com/g-truc/glm lib/glm
+$ cd bin
 $ cmake .. -G <CMake Generator>
 # Build using generated files
 ```
 
 ## Run instructions: 
 
-'''
+```
 $ ./bin/cpp-vulkan
-'''
+```
 
 ## Pictures
 
